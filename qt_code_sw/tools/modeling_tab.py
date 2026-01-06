@@ -88,11 +88,10 @@ class ModelingWorker(QObject):
                 'LinearRegression': LinearRegression(**self.custom_params.get('LinearRegression', {}))
             }
 
-            # 【新增】: 如果库可用，添加 TabPFN
+            # 【新增】: 如果库可用，添加 TabPFN (不传入任何参数，使用默认值)
             if TABPFN_AVAILABLE:
-                # 确保不传入 TabPFN 不支持的参数
-                tp_params = self.custom_params.get('TabPFN', {}).copy()
-                models_dict['TabPFN'] = TabPFNRegressor(**tp_params)
+                # TabPFN 不需要传递参数，直接使用空字典 {} 初始化
+                models_dict['TabPFN'] = TabPFNRegressor()
 
             models_to_run = {name: model for name, model in models_dict.items() if name in self.selected_models}
 
@@ -159,9 +158,7 @@ class ParametersDialog(QDialog):
         self.create_catboost_tab()
         self.create_knn_tab()
 
-        # 【新增】: 创建 TabPFN 标签页
-        if TABPFN_AVAILABLE:
-            self.create_tabpfn_tab()
+        # 【修改】: TabPFN 不需要参数配置 Tab，因此这里不创建 TabPFN 的标签页
 
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
@@ -319,24 +316,6 @@ class ParametersDialog(QDialog):
         layout.addRow("Weights:", self.knn_weights)
         self.tabs.addTab(tab, "KNN")
 
-    # 【新增】: TabPFN 选项卡
-    def create_tabpfn_tab(self):
-        tab = QWidget()
-        layout = QFormLayout(tab)
-        params = self.params.get('TabPFN', {})
-
-        self.tp_device = QComboBox()
-        self.tp_device.addItems(['cpu', 'cuda'])
-        self.tp_device.setCurrentText(params.get('device', 'cpu'))
-        self.tp_device.setToolTip("如果有NVIDIA GPU并安装了CUDA，选择cuda速度更快")
-
-        self.tp_n_ensemble = QSpinBox(value=params.get('N_ensemble_configurations', 3), minimum=1, maximum=100)
-        self.tp_n_ensemble.setToolTip("集成配置的数量。越高精度越好但速度越慢。")
-
-        layout.addRow("Device (设备):", self.tp_device)
-        layout.addRow("N Ensemble Configs:", self.tp_n_ensemble)
-        self.tabs.addTab(tab, "TabPFN")
-
     def get_parameters(self):
         max_features_val = self.rf_max_features.currentText()
         if max_features_val == 'None': max_features_val = None
@@ -365,12 +344,9 @@ class ParametersDialog(QDialog):
             'LinearRegression': {'n_jobs': -1}
         }
 
-        # 【新增】: 获取 TabPFN 参数
+        # 【修改】: TabPFN 没有参数需要设置，返回空字典
         if TABPFN_AVAILABLE:
-            updated_params['TabPFN'] = {
-                'device': self.tp_device.currentText(),
-                'N_ensemble_configurations': self.tp_n_ensemble.value()
-            }
+            updated_params['TabPFN'] = {}
 
         return updated_params
 
@@ -396,8 +372,8 @@ class ModelingTab(QWidget):
             'CatBoost': {'iterations': 1000, 'learning_rate': 0.03, 'depth': 6, 'random_state': 43, 'verbose': 0},
             'KNN': {'n_neighbors': 5, 'weights': 'uniform', 'n_jobs': -1},
             'LinearRegression': {'n_jobs': -1},
-            # 【新增】: TabPFN 默认参数
-            'TabPFN': {'device': 'cpu', 'N_ensemble_configurations': 3}
+            # 【修改】: TabPFN 参数为空
+            'TabPFN': {}
         }
 
         main_layout = QVBoxLayout(self)
