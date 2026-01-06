@@ -13,7 +13,7 @@ Sentinel-2 Imagery: Extracts Vegetation Indices (NDVI, NDWI) and GLCM Texture fe
 Multi-Scale Scaling: A specialized algorithm that aggregates individual tree AGB to the plot level based on the geometric relationship between tree convex hulls and plot grids.
 Parallel Processing: Supports multi-core processing for handling large datasets efficiently.
 4. Machine Learning Modeling
-Algorithm Suite: Integrates RandomForest, XGBoost, LightGBM, CatBoost, SVR, KNN, LinearRegression, and the state-of-the-art TabPFN (Transformer for Tabular Data).
+Algorithm Suite: Integrates RandomForest, XGBoost, LightGBM, CatBoost, SVR, KNN, LinearRegression, and the state-of-the-art TabPFN.
 Hyperparameter Tuning: GUI-based parameter adjustment for all models.
 Evaluation: Automatic calculation of R² and RMSE, with support for generating "Observed vs. Predicted" scatter plots.
 Model Persistence: Save trained models (.joblib) and data scalers for future use.
